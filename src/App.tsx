@@ -1,26 +1,42 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { formatRelative } from "date-fns";
+import * as dictionary from "date-fns/esm/locale";
 
-function App() {
+import {
+  datesDictionary,
+  DatesDictionaryKeysT,
+  WordsDictT,
+} from "./dates-dictionary";
+
+import "./App.css";
+
+const isLocaleDictExist = <T,>(language: unknown): language is T =>
+  typeof language === "string" &&
+  Object.keys(datesDictionary).includes(language);
+
+const App = () => {
+  const date = new Date();
+  const languageFromProps: string = "enUS";
+  const defaultLanguage: DatesDictionaryKeysT = "ru";
+
+  const language = isLocaleDictExist<DatesDictionaryKeysT>(languageFromProps)
+    ? languageFromProps
+    : defaultLanguage;
+
+  const dict: WordsDictT = datesDictionary[language];
+
+  const locale = {
+    ...dictionary[language],
+    formatRelative: (token: keyof WordsDictT) => dict[token],
+  };
+
+  const dateString = formatRelative(date, new Date(), { locale });
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>{dateString}</div>
     </div>
   );
-}
+};
 
 export default App;
